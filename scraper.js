@@ -86,4 +86,3 @@ function goToEnd () {
 
 casper.run();
 cycleThroughUrls();
-
