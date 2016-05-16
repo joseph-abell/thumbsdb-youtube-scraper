@@ -18,15 +18,16 @@ function grabAllLinks (_) {
 		listOfUrls: arrayOfLinks
 	};
 
-	fs.write('results/part1.js', JSON.stringify(urls), 'w');
+	fs.write('results/urls.js', JSON.stringify(urls), 'w');
 }
 
 function clickMoreButton (_) {
-	console.log('clickingButton');
+	console.log('loading more content...');
 	if(_.exists(errorButton) === false) {
 		_.click(loadMoreButton);
 		_.wait(2000, clickMoreButton);
 	} else {
+		console.log('Writing file')
 		grabAllLinks(_);
 	}
 }

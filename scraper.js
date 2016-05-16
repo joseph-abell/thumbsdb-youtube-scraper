@@ -1,7 +1,7 @@
 var casper = require('casper').create();
 var fs = require('fs');
 
-var content = fs.read('results/part1.js');
+var content = fs.read('results/urls.js');
 content = JSON.parse(content);
 
 content = content.listOfUrls;
@@ -11,7 +11,7 @@ var urlInteger = 0;
 var newContent = [];
 
 casper.start('https://google.com', function () {
-	console.log('https://google.com');
+	console.log('Loading each page, to scrape content. Scraping ' + content.length + " urls");
 })
 
 function cycleThroughUrls () {
@@ -70,7 +70,7 @@ function cycleThroughUrls () {
 		}
 
 		if (urlInteger < content.length) {
-			console.log('creating content for ' + urlInteger);
+			console.log('Scraping ' + JSON.stringify(content[urlInteger]) + '. ' + urlInteger + " out of " + content.length);
 			urlInteger = ++urlInteger;
 			cycleThroughUrls();
 		} else {
@@ -80,8 +80,8 @@ function cycleThroughUrls () {
 }
 
 function goToEnd () {
-	console.log('writing file');
-	fs.write('results/part2.js', JSON.stringify(newContent), 'w');	
+	console.log('Writing file');
+	fs.write('results/result.js', JSON.stringify(newContent), 'w');	
 }
 
 casper.run();

@@ -14,6 +14,6 @@ You will need to have nodejs and casper installed on your computer.
 - in your command line, go to the root folder, and run npm install. 
 
 ## Run
-- run casperjs part1.js
-- run casperjs part2.js
+- run casperjs urlGenerator.js
+- run casperjs scraper.js
 - look in the results folder, and see result.js. there will be a little clean up you need to do, such as removing inneeded escaping in the url, but other than that it should be ready for you.
