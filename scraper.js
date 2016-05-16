@@ -11,13 +11,11 @@ var urlInteger = 0;
 var newContent = [];
 
 casper.start('https://google.com', function () {
-	console.log('Loading each page, to scrape content. Scraping ' + content.length + " urls");
 })
 
 function cycleThroughUrls () {
 	casper.thenOpen(content[urlInteger], function () {
 		var _ = this;
-
 		var title = _.getElementInfo('#eow-title');
 		title = title.attributes.title;
 		
@@ -25,7 +23,6 @@ function cycleThroughUrls () {
 		description = description.html;
 		despription = JSON.stringify(description);
 		description = description.replace(/<br><br>[\s\S].*/g, '');
-		
 		var links = _.getElementInfo('#eow-description');
 		links = links.html;
 		links = JSON.stringify(links);
@@ -70,7 +67,6 @@ function cycleThroughUrls () {
 		}
 
 		if (urlInteger < content.length) {
-			console.log('Scraping ' + JSON.stringify(content[urlInteger]) + '. ' + urlInteger + " out of " + content.length);
 			urlInteger = ++urlInteger;
 			cycleThroughUrls();
 		} else {
@@ -80,7 +76,6 @@ function cycleThroughUrls () {
 }
 
 function goToEnd () {
-	console.log('Writing file');
 	fs.write('results/result.js', JSON.stringify(newContent), 'w');	
 }
 
