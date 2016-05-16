@@ -1,5 +1,7 @@
 # thumbsdb-youtube-scraper
 
+[![Build Status](https://travis-ci.org/gerbilsinspace/thumbsdb-youtube-scraper.svg?branch=master)](https://travis-ci.org/gerbilsinspace/thumbsdb-youtube-scraper)
+
 This is a small script that scrapes all the youtube videos uploaded by IdleVideos, and outputs into json.
 
 This is pretty hacky, and involves a two step process, the first to get all the urls we will be using, and the second, to produce the JSON file.
