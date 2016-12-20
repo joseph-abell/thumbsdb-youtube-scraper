@@ -8,18 +8,39 @@ var scraper = {
 	init: function () {
 		var current = this;
 
-		current.setupUrls();
-		current.setupCasper();
-		current.compileResultFromUrls();
-		casper.run();		
+		console.log("Collating a list of videos.");
+
+		casper.start('https://www.youtube.com/user/idlevideos/videos', function () {
+			var _ = this;
+
+			current.clickMoreButton(_);
+		});
+
+		casper.run();
 	},
 
-	setupUrls: function () {
-		scraper.urls = JSON.parse(fs.read('results/urls.js')).listOfUrls;
+	clickMoreButton: function (_) {
+		console.log('Loading more videos...');
+
+		if(_.exists('.yt-uix-load-more-error') === false) {
+			_.click('.browse-items-load-more-button');
+			_.wait(2000, scraper.clickMoreButton);
+		} else {
+			scraper.grabAllLinks(_);
+		}
 	},
 
-	setupCasper: function () {
-		casper.start('https://google.com', function () {});		
+	grabAllLinks: function  (_) {
+		var current = this;
+		var links = _.getElementsInfo('.yt-uix-tile-link');
+		var linkId = 0;
+
+		console.log("Saving links so we can start scraping content from urls.");
+		for (linkId; linkId < links.length; linkId++) {
+			current.urls[linkId] = "https://youtube.com" + links[linkId].attributes.href;
+		}
+
+		scraper.compileResultFromUrls();
 	},
 
 	compileResultFromUrls: function () {

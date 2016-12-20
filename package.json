@@ -1,13 +1,13 @@
 {
   "name": "thumbsdb-youtube-scraper",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "author": "",
+  "version": "1.0.1",
+  "description": "A youtube web scraper for Idle Thumbs.",
+  "main": "scraper.js",
+  "author": "Joseph Abell (gerbilsinspace)",
   "scripts": {
-    "test": "casperjs urlGenerator.js && casperjs scraper.js"
+    "test": "casperjs scraper.js"
   },
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "casperjs": "^1.1.1"
