@@ -1,83 +1,116 @@
 var casper = require('casper').create();
 var fs = require('fs');
 
-var content = fs.read('results/urls.js');
-content = JSON.parse(content);
+var scraper = {
+	urls: [],
+	finalContent: [],
 
-content = content.listOfUrls;
-var shallContinue = true;
-var urlInteger = 0;
+	init: function () {
+		var current = this;
 
-var newContent = [];
+		current.setupUrls();
+		current.setupCasper();
+		current.compileResultFromUrls();
+		casper.run();		
+	},
 
-casper.start('https://google.com', function () {
-})
+	setupUrls: function () {
+		scraper.urls = JSON.parse(fs.read('results/urls.js')).listOfUrls;
+	},
 
-function cycleThroughUrls () {
-	casper.thenOpen(content[urlInteger], function () {
-		var _ = this;
-		var title = _.getElementInfo('#eow-title');
-		title = title.attributes.title;
-		
-		var description = _.getElementInfo('#eow-description');
-		description = description.html;
-		despription = JSON.stringify(description);
+	setupCasper: function () {
+		casper.start('https://google.com', function () {});		
+	},
+
+	compileResultFromUrls: function () {
+		var current = this;
+
+		for (var urlId = 0; urlId < current.urls.length; urlId++) {
+			var url = current.urls[urlId];
+
+			if (urlId === current.urls.length - 1) {
+				current.addUrlDataToResult(url, true);	
+			} else {
+				current.addUrlDataToResult(url, false);
+			}
+		}
+	},
+
+	addUrlDataToResult: function (url, isLastUrl) {
+		var current = this;
+
+		casper.thenOpen(url, function () {
+			var _ = this;
+			var title = _.getElementInfo('#eow-title').attributes.title;
+			var description = current.cleanupDescription(_.getElementInfo('#eow-description').html);
+			var links = current.cleanupLinks(_.getElementInfo('#eow-description').html);
+
+			current.addLinkToJson(title, description, links);
+
+			if (isLastUrl) {
+				current.pushContentToFile();
+			}
+		});
+	},
+
+	cleanupDescription: function (description) {
+		description = JSON.stringify(description);
 		description = description.replace(/<br><br>[\s\S].*/g, '');
-		var links = _.getElementInfo('#eow-description');
-		links = links.html;
+
+		return description;
+	},
+
+	cleanupLinks: function (links) {
+		var cleanLinks = [];
+		var linkId = 0;
+
 		links = JSON.stringify(links);
 		links = links.split('<br>');
 
-		var cleanedUpLinks = [];
-		for (var i = 0; i < links.length; i++) {
-			var link = links[i];
+		for (linkId; linkId < links.length; linkId++) {
+			var link = links[linkId];
 
 			if (link.substring(0, 2) == "<a") {
-				cleanedUpLinks[cleanedUpLinks.length] = link
+				cleanLinks[cleanLinks.length] = link;
 			}
 		}
 
-		links = [];
-		for (var j = 0; j < cleanedUpLinks.length; j++) {
-			var cleanedUpLink = cleanedUpLinks[j];
-			var url = cleanedUpLink.replace(/( — [\s\S].*)/g, '');
+		return cleanLinks;
+	},
 
-			var seekTo = url.replace(/(<a[\s\S].*seekTo\()/g, '');
-			seekTo = seekTo.replace(/\)[\s\S].*/g, '');
+	addLinkToJson: function (title, description, links) {
+		console.log(title);
+		var current = this;
+		var linkId = 0;
+		var newLinks = [];
 
-			var time = cleanedUpLink;
-			time = time.replace(/<a[\s\S].*">/g, '');
-			time = time.replace(/<\/a>[\s\S].*/g, '');
-			
-			var text = cleanedUpLink;
-			text = text.replace(/<a [\s\S].* — /g, '')
-			
-			links[j] = {
+		for (linkId; linkId < links.length; linkId++) {
+			var link = links[linkId];
+			var url = link.replace(/( — [\s\S].*)/g, '');
+			var seekTo = url.replace(/(<a[\s\S].*seekTo\()/g, '').replace(/\)[\s\S].*/g, '');
+			var time = link.replace(/<a[\s\S].*">/g, '').replace(/<\/a>[\s\S].*/g, '');
+			var text = link.replace(/<a [\s\S].* — /g, '');
+
+			newLinks[linkId] = {
 				url: url,
 				seekTo: seekTo,
 				time: time,
 				text: text
-			}
+			};
 		}
-		
-		newContent[newContent.length] = {
+
+		current.finalContent[current.finalContent.length] = {
 			title: title,
 			description: description,
-			links: links
-		}
+			links: newLinks
+		};
+	},
 
-		if (urlInteger < content.length) {
-			urlInteger = ++urlInteger;
-			cycleThroughUrls();
-		} else {
-			goToEnd();
-		}
-	})
-}
+	pushContentToFile: function () {
+		var current = this;
 
-function goToEnd () {
-	fs.write('results/result.js', JSON.stringify(newContent), 'w');	
-}
+		fs.write('results/result.js', JSON.stringify(current.finalContent), 'w');	
+	}
+};
 
-casper.run();
-cycleThroughUrls();
+scraper.init();
