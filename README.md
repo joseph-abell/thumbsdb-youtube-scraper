@@ -1,5 +1,7 @@
 # thumbsdb-youtube-scraper
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/gerbilsinspace/thumbsdb-youtube-scraper.svg)](https://greenkeeper.io/)
+
 This is a small script that scrapes all the youtube videos uploaded by IdleVideos, and outputs into json for data collection purposes.
 
 Although I am much happier with the code now I've revisited it, it is quite bespoke and I'd like to use this code for other youtubers.
